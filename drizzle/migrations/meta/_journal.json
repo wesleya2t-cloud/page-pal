@@ -8,6 +8,13 @@
       "when": 1789220255287,
       "tag": "0000_spine_core_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789220294236,
+      "tag": "0001_spine_media_storage_policies",
+      "breakpoints": true
     }
   ]
 }
