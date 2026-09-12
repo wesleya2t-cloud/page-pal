@@ -14,7 +14,230 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string | null
+          cover_url: string | null
+          created_at: string
+          current_page: number
+          finished_at: string | null
+          id: string
+          notes: string | null
+          recommended_by: string | null
+          spine_color: string | null
+          status: string
+          title: string
+          total_pages: number
+          user_id: string
+        }
+        Insert: {
+          author?: string | null
+          cover_url?: string | null
+          created_at?: string
+          current_page?: number
+          finished_at?: string | null
+          id?: string
+          notes?: string | null
+          recommended_by?: string | null
+          spine_color?: string | null
+          status?: string
+          title: string
+          total_pages?: number
+          user_id: string
+        }
+        Update: {
+          author?: string | null
+          cover_url?: string | null
+          created_at?: string
+          current_page?: number
+          finished_at?: string | null
+          id?: string
+          notes?: string | null
+          recommended_by?: string | null
+          spine_color?: string | null
+          status?: string
+          title?: string
+          total_pages?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      kudos: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          session_kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          session_kind?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          session_kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          house: string
+          id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          house?: string
+          id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          house?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          book_id: string | null
+          created_at: string
+          id: string
+          minutes: number
+          note: string | null
+          pages: number
+          photo_url: string | null
+          session_date: string
+          user_id: string
+        }
+        Insert: {
+          book_id?: string | null
+          created_at?: string
+          id?: string
+          minutes?: number
+          note?: string | null
+          pages?: number
+          photo_url?: string | null
+          session_date?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string | null
+          created_at?: string
+          id?: string
+          minutes?: number
+          note?: string | null
+          pages?: number
+          photo_url?: string | null
+          session_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_sessions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recommendations: {
+        Row: {
+          author: string | null
+          created_at: string
+          from_user: string
+          id: string
+          note: string | null
+          title: string
+          to_user: string
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string
+          from_user: string
+          id?: string
+          note?: string | null
+          title: string
+          to_user: string
+        }
+        Update: {
+          author?: string | null
+          created_at?: string
+          from_user?: string
+          id?: string
+          note?: string | null
+          title?: string
+          to_user?: string
+        }
+        Relationships: []
+      }
+      study_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          minutes: number
+          notes: string | null
+          session_date: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          minutes?: number
+          notes?: string | null
+          session_date?: string
+          subject: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          minutes?: number
+          notes?: string | null
+          session_date?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
