@@ -468,13 +468,7 @@ function Timer({
         Log as study
       </Button>
       {seconds > 0 && (
-        <button
-          className="text-xs text-muted-foreground underline"
-          onClick={() => {
-            setRunning(false);
-            setSeconds(0);
-          }}
-        >
+        <button className="text-xs text-muted-foreground underline" onClick={reset}>
           Reset
         </button>
       )}
