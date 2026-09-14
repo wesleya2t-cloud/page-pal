@@ -380,18 +380,52 @@ function Timer({
   uid: string | undefined;
   onLogged: () => void;
 }) {
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(false);
+  // Wall-clock timer: it keeps counting while the tab is hidden, in another
+  // app, or closed entirely, because elapsed time is derived from timestamps.
+  const [base, setBase] = useState(0);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [, tick] = useState(0);
+  const running = startedAt !== null;
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (running) {
-      interval.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+    const raw = localStorage.getItem(TIMER_KEY);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as { base: number; startedAt: number | null };
+      setBase(saved.base ?? 0);
+      setStartedAt(saved.startedAt ?? null);
+    } catch {
+      localStorage.removeItem(TIMER_KEY);
     }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(TIMER_KEY, JSON.stringify({ base, startedAt }));
+  }, [base, startedAt]);
+
+  useEffect(() => {
+    if (!running) return;
+    interval.current = setInterval(() => tick((n) => n + 1), 1000);
+    const onVisible = () => tick((n) => n + 1);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       if (interval.current) clearInterval(interval.current);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [running]);
+
+  const seconds = base + (startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0);
+
+  const stop = () => {
+    setBase(seconds);
+    setStartedAt(null);
+  };
+  const start = () => setStartedAt(Date.now());
+  const reset = () => {
+    setBase(0);
+    setStartedAt(null);
+  };
 
   const minutes = Math.max(1, Math.round(seconds / 60));
 
