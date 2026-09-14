@@ -34,9 +34,12 @@ function Landing() {
 
   return (
     <main className="mx-auto max-w-3xl px-5 pt-10 pb-24">
-      <header className="flex items-baseline justify-between border-b-2 border-foreground pb-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground pb-4">
         <h1 className="font-serif text-3xl">Spine</h1>
-        <span className="label-xs">reading, tracked</span>
+        <div className="flex items-center gap-4">
+          <span className="label-xs">reading, tracked</span>
+          <ThemeToggle />
+        </div>
       </header>
 
       <section className="mt-14">
