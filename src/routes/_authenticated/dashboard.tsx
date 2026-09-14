@@ -125,7 +125,7 @@ function Dashboard() {
   async function setHouse(id: string) {
     if (!uid) return;
     const { error } = await supabase.from("profiles").update({ house: id }).eq("id", uid);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["profile", uid] });
   }
 
@@ -396,7 +396,7 @@ function Timer({
   const minutes = Math.max(1, Math.round(seconds / 60));
 
   async function logAs(kind: "reading" | "study") {
-    if (!uid || seconds < 30) return toast.error("Run the timer for at least 30 seconds.");
+    if (!uid || seconds < 30) { toast.error("Run the timer for at least 30 seconds."); return; }
     if (kind === "reading") {
       const book = books[0];
       const { error } = await supabase.from("reading_sessions").insert({
@@ -406,7 +406,7 @@ function Timer({
         minutes,
         session_date: todayISO(),
       });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     } else {
       const { error } = await supabase.from("study_sessions").insert({
         user_id: uid,
@@ -414,7 +414,7 @@ function Timer({
         minutes,
         session_date: todayISO(),
       });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     }
     setRunning(false);
     setSeconds(0);
@@ -466,7 +466,7 @@ function ReadingLogRow({
 
   async function log() {
     const count = parseInt(pages, 10);
-    if (!uid || !count || count <= 0) return toast.error("Enter how many pages you read.");
+    if (!uid || !count || count <= 0) { toast.error("Enter how many pages you read."); return; }
     setBusy(true);
     try {
       const photoPath = file ? await uploadMedia(file, "sessions") : null;
@@ -574,7 +574,7 @@ function AddBook({ uid, onAdded }: { uid: string | undefined; onAdded: () => voi
   const [busy, setBusy] = useState(false);
 
   async function add() {
-    if (!uid || !title.trim()) return toast.error("Give the book a title.");
+    if (!uid || !title.trim()) { toast.error("Give the book a title."); return; }
     setBusy(true);
     try {
       const coverPath = cover ? await uploadMedia(cover, "covers") : null;
@@ -675,7 +675,7 @@ function StudyForm({ uid, onLogged }: { uid: string | undefined; onLogged: () =>
 
   async function log() {
     const mins = parseInt(minutes, 10);
-    if (!uid || !subject.trim() || !mins) return toast.error("Add a subject and minutes.");
+    if (!uid || !subject.trim() || !mins) { toast.error("Add a subject and minutes."); return; }
     setBusy(true);
     const { error } = await supabase.from("study_sessions").insert({
       user_id: uid,
@@ -685,7 +685,7 @@ function StudyForm({ uid, onLogged }: { uid: string | undefined; onLogged: () =>
       session_date: todayISO(),
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setSubject("");
     setMinutes("");
     setNotes("");
