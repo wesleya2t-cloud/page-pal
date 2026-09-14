@@ -21,13 +21,14 @@ export function AppHeader({ active }: { active: "shelf" | "friends" }) {
       <Link to="/" className="font-serif text-2xl">
         Spine
       </Link>
-      <nav className="flex items-center gap-5">
+      <nav className="flex flex-wrap items-center gap-4">
         <Link to="/dashboard" className={linkClass("shelf")}>
           Shelf
         </Link>
         <Link to="/friends" className={linkClass("friends")}>
           Friends
         </Link>
+        <ThemeToggle />
         <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
           Sign out
         </button>
