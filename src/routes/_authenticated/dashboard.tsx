@@ -53,6 +53,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+const TIMER_KEY = "spine-timer";
+
 function Dashboard() {
   const qc = useQueryClient();
   const { data: me } = useMe();
