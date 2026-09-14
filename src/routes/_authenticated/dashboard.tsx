@@ -53,6 +53,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+const TIMER_KEY = "spine-timer";
+
 function Dashboard() {
   const qc = useQueryClient();
   const { data: me } = useMe();
@@ -125,7 +127,7 @@ function Dashboard() {
   async function setHouse(id: string) {
     if (!uid) return;
     const { error } = await supabase.from("profiles").update({ house: id }).eq("id", uid);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["profile", uid] });
   }
 
@@ -380,23 +382,57 @@ function Timer({
   uid: string | undefined;
   onLogged: () => void;
 }) {
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(false);
+  // Wall-clock timer: it keeps counting while the tab is hidden, in another
+  // app, or closed entirely, because elapsed time is derived from timestamps.
+  const [base, setBase] = useState(0);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [, tick] = useState(0);
+  const running = startedAt !== null;
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (running) {
-      interval.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+    const raw = localStorage.getItem(TIMER_KEY);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as { base: number; startedAt: number | null };
+      setBase(saved.base ?? 0);
+      setStartedAt(saved.startedAt ?? null);
+    } catch {
+      localStorage.removeItem(TIMER_KEY);
     }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(TIMER_KEY, JSON.stringify({ base, startedAt }));
+  }, [base, startedAt]);
+
+  useEffect(() => {
+    if (!running) return;
+    interval.current = setInterval(() => tick((n) => n + 1), 1000);
+    const onVisible = () => tick((n) => n + 1);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       if (interval.current) clearInterval(interval.current);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [running]);
+
+  const seconds = base + (startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0);
+
+  const stop = () => {
+    setBase(seconds);
+    setStartedAt(null);
+  };
+  const start = () => setStartedAt(Date.now());
+  const reset = () => {
+    setBase(0);
+    setStartedAt(null);
+  };
 
   const minutes = Math.max(1, Math.round(seconds / 60));
 
   async function logAs(kind: "reading" | "study") {
-    if (!uid || seconds < 30) return toast.error("Run the timer for at least 30 seconds.");
+    if (!uid || seconds < 30) { toast.error("Run the timer for at least 30 seconds."); return; }
     if (kind === "reading") {
       const book = books[0];
       const { error } = await supabase.from("reading_sessions").insert({
@@ -406,7 +442,7 @@ function Timer({
         minutes,
         session_date: todayISO(),
       });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     } else {
       const { error } = await supabase.from("study_sessions").insert({
         user_id: uid,
@@ -414,10 +450,9 @@ function Timer({
         minutes,
         session_date: todayISO(),
       });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     }
-    setRunning(false);
-    setSeconds(0);
+    reset();
     onLogged();
     toast.success(`Logged ${minutes} minutes`);
   }
@@ -425,7 +460,7 @@ function Timer({
   return (
     <div className="mb-8 flex flex-wrap items-center gap-3 rounded-md border border-border bg-card px-4 py-3">
       <span className="min-w-[72px] font-serif text-xl">{formatClock(seconds)}</span>
-      <Button size="sm" onClick={() => setRunning(!running)}>
+      <Button size="sm" onClick={() => (running ? stop() : start())}>
         {running ? "Pause" : seconds ? "Resume" : "Start timer"}
       </Button>
       <Button size="sm" variant="outline" onClick={() => logAs("reading")}>
@@ -435,13 +470,7 @@ function Timer({
         Log as study
       </Button>
       {seconds > 0 && (
-        <button
-          className="text-xs text-muted-foreground underline"
-          onClick={() => {
-            setRunning(false);
-            setSeconds(0);
-          }}
-        >
+        <button className="text-xs text-muted-foreground underline" onClick={reset}>
           Reset
         </button>
       )}
@@ -466,7 +495,7 @@ function ReadingLogRow({
 
   async function log() {
     const count = parseInt(pages, 10);
-    if (!uid || !count || count <= 0) return toast.error("Enter how many pages you read.");
+    if (!uid || !count || count <= 0) { toast.error("Enter how many pages you read."); return; }
     setBusy(true);
     try {
       const photoPath = file ? await uploadMedia(file, "sessions") : null;
@@ -574,7 +603,7 @@ function AddBook({ uid, onAdded }: { uid: string | undefined; onAdded: () => voi
   const [busy, setBusy] = useState(false);
 
   async function add() {
-    if (!uid || !title.trim()) return toast.error("Give the book a title.");
+    if (!uid || !title.trim()) { toast.error("Give the book a title."); return; }
     setBusy(true);
     try {
       const coverPath = cover ? await uploadMedia(cover, "covers") : null;
@@ -675,7 +704,7 @@ function StudyForm({ uid, onLogged }: { uid: string | undefined; onLogged: () =>
 
   async function log() {
     const mins = parseInt(minutes, 10);
-    if (!uid || !subject.trim() || !mins) return toast.error("Add a subject and minutes.");
+    if (!uid || !subject.trim() || !mins) { toast.error("Add a subject and minutes."); return; }
     setBusy(true);
     const { error } = await supabase.from("study_sessions").insert({
       user_id: uid,
@@ -685,7 +714,7 @@ function StudyForm({ uid, onLogged }: { uid: string | undefined; onLogged: () =>
       session_date: todayISO(),
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setSubject("");
     setMinutes("");
     setNotes("");

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function AppHeader({ active }: { active: "shelf" | "friends" }) {
   const navigate = useNavigate();
@@ -21,13 +22,14 @@ export function AppHeader({ active }: { active: "shelf" | "friends" }) {
       <Link to="/" className="font-serif text-2xl">
         Spine
       </Link>
-      <nav className="flex items-center gap-5">
+      <nav className="flex flex-wrap items-center gap-4">
         <Link to="/dashboard" className={linkClass("shelf")}>
           Shelf
         </Link>
         <Link to="/friends" className={linkClass("friends")}>
           Friends
         </Link>
+        <ThemeToggle />
         <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
           Sign out
         </button>

@@ -207,7 +207,7 @@ function FindFriends({
                     const { error } = await supabase
                       .from("friendships")
                       .insert({ requester_id: uid, addressee_id: p.id });
-                    if (error) return toast.error(error.message);
+                    if (error) { toast.error(error.message); return; }
                     toast.success("Request sent");
                     onChanged();
                   }}
@@ -317,7 +317,7 @@ function Recommendations({
   const { data: people } = useProfilesByIds(peopleIds);
 
   async function send() {
-    if (!uid || !to || !title.trim()) return toast.error("Pick a friend and a book title.");
+    if (!uid || !to || !title.trim()) { toast.error("Pick a friend and a book title."); return; }
     const { error } = await supabase.from("recommendations").insert({
       from_user: uid,
       to_user: to,
@@ -325,7 +325,7 @@ function Recommendations({
       author: author.trim() || null,
       note: note.trim() || null,
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setTitle("");
     setAuthor("");
     setNote("");
@@ -343,7 +343,7 @@ function Recommendations({
       status: "want",
       recommended_by: from?.display_name ?? from?.username ?? "a friend",
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Added to your want-to-read list");
   }
 
@@ -486,7 +486,7 @@ function FriendFeed({ circleIds, uid }: { circleIds: string[]; uid: string | und
       const { error } = await supabase
         .from("kudos")
         .insert({ user_id: uid, session_id: sessionId, session_kind: kind });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     }
     qc.invalidateQueries({ queryKey: ["friend-feed"] });
   }
