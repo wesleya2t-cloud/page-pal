@@ -81,9 +81,12 @@ function AuthPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-16">
-      <Link to="/" className="font-serif text-2xl">
-        Spine
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link to="/" className="font-serif text-2xl">
+          Spine
+        </Link>
+        <ThemeToggle />
+      </div>
 
       {sentConfirmation ? (
         <div className="mt-8 rounded-md border border-border bg-card p-6">
