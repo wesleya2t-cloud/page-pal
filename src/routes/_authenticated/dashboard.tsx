@@ -458,7 +458,7 @@ function Timer({
   return (
     <div className="mb-8 flex flex-wrap items-center gap-3 rounded-md border border-border bg-card px-4 py-3">
       <span className="min-w-[72px] font-serif text-xl">{formatClock(seconds)}</span>
-      <Button size="sm" onClick={() => setRunning(!running)}>
+      <Button size="sm" onClick={() => (running ? stop() : start())}>
         {running ? "Pause" : seconds ? "Resume" : "Start timer"}
       </Button>
       <Button size="sm" variant="outline" onClick={() => logAs("reading")}>
