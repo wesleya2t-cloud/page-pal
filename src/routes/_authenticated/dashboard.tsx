@@ -450,8 +450,7 @@ function Timer({
       });
       if (error) { toast.error(error.message); return; }
     }
-    setRunning(false);
-    setSeconds(0);
+    reset();
     onLogged();
     toast.success(`Logged ${minutes} minutes`);
   }
